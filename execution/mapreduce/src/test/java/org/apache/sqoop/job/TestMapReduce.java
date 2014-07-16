@@ -51,187 +51,187 @@ import org.apache.sqoop.model.MJob;
 
 public class TestMapReduce extends TestCase {
 
-  private static final int START_PARTITION = 1;
-  private static final int NUMBER_OF_PARTITIONS = 9;
-  private static final int NUMBER_OF_ROWS_PER_PARTITION = 10;
-
-  public void testInputFormat() throws Exception {
-    Configuration conf = new Configuration();
-    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
-    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
-    Job job = new Job(conf);
-
-    SqoopInputFormat inputformat = new SqoopInputFormat();
-    List<InputSplit> splits = inputformat.getSplits(job);
-    assertEquals(9, splits.size());
-
-    for (int id = START_PARTITION; id <= NUMBER_OF_PARTITIONS; id++) {
-      SqoopSplit split = (SqoopSplit)splits.get(id-1);
-      DummyPartition partition = (DummyPartition)split.getPartition();
-      assertEquals(id, partition.getId());
-    }
-  }
-
-  public void testMapper() throws Exception {
-    Configuration conf = new Configuration();
-    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
-    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
-    conf.set(JobConstants.JOB_ETL_EXTRACTOR, DummyExtractor.class.getName());
-
-    JobUtils.runJob(conf, SqoopInputFormat.class, SqoopMapper.class,
-        DummyOutputFormat.class);
-  }
-
-  public void testOutputFormat() throws Exception {
-    Configuration conf = new Configuration();
-    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
-    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
-    conf.set(JobConstants.JOB_ETL_EXTRACTOR, DummyExtractor.class.getName());
-    conf.set(JobConstants.JOB_ETL_LOADER, DummyLoader.class.getName());
-
-    JobUtils.runJob(conf, SqoopInputFormat.class, SqoopMapper.class,
-        SqoopNullOutputFormat.class);
-  }
-
-  public static class DummyPartition extends Partition {
-    private int id;
-
-    public void setId(int id) {
-      this.id = id;
-    }
-
-    public int getId() {
-      return id;
-    }
-
-    @Override
-    public void readFields(DataInput in) throws IOException {
-      id = in.readInt();
-    }
-
-    @Override
-    public void write(DataOutput out) throws IOException {
-      out.writeInt(id);
-    }
-
-    @Override
-    public String toString() {
-      return Integer.toString(id);
-    }
-  }
-
-  public static class DummyPartitioner extends Partitioner {
-    @Override
-    public List<Partition> getPartitions(PartitionerContext context, Object oc, Object oj) {
-      List<Partition> partitions = new LinkedList<Partition>();
-      for (int id = START_PARTITION; id <= NUMBER_OF_PARTITIONS; id++) {
-        DummyPartition partition = new DummyPartition();
-        partition.setId(id);
-        partitions.add(partition);
-      }
-      return partitions;
-    }
-  }
-
-  public static class DummyExtractor extends Extractor {
-    @Override
-    public void extract(ExtractorContext context, Object oc, Object oj, Object partition) {
-      int id = ((DummyPartition)partition).getId();
-      for (int row = 0; row < NUMBER_OF_ROWS_PER_PARTITION; row++) {
-        context.getDataWriter().writeArrayRecord(new Object[] {
-            id * NUMBER_OF_ROWS_PER_PARTITION + row,
-            (double) (id * NUMBER_OF_ROWS_PER_PARTITION + row),
-            String.valueOf(id*NUMBER_OF_ROWS_PER_PARTITION+row)});
-      }
-    }
-
-    @Override
-    public long getRowsRead() {
-      return NUMBER_OF_ROWS_PER_PARTITION;
-    }
-  }
-
-  public static class DummyOutputFormat
-      extends OutputFormat<Data, NullWritable> {
-    @Override
-    public void checkOutputSpecs(JobContext context) {
-      // do nothing
-    }
-
-    @Override
-    public RecordWriter<Data, NullWritable> getRecordWriter(
-        TaskAttemptContext context) {
-      return new DummyRecordWriter();
-    }
-
-    @Override
-    public OutputCommitter getOutputCommitter(TaskAttemptContext context) {
-      return new DummyOutputCommitter();
-    }
-
-    public static class DummyRecordWriter
-        extends RecordWriter<Data, NullWritable> {
-      private int index = START_PARTITION*NUMBER_OF_ROWS_PER_PARTITION;
-      private Data data = new Data();
-
-      @Override
-      public void write(Data key, NullWritable value) {
-        data.setContent(new Object[] {
-          index,
-          (double) index,
-          String.valueOf(index)},
-          Data.ARRAY_RECORD);
-        index++;
-
-        assertEquals(data.toString(), key.toString());
-      }
-
-      @Override
-      public void close(TaskAttemptContext context) {
-        // do nothing
-      }
-    }
-
-    public static class DummyOutputCommitter extends OutputCommitter {
-      @Override
-      public void setupJob(JobContext jobContext) { }
-
-      @Override
-      public void setupTask(TaskAttemptContext taskContext) { }
-
-      @Override
-      public void commitTask(TaskAttemptContext taskContext) { }
-
-      @Override
-      public void abortTask(TaskAttemptContext taskContext) { }
-
-      @Override
-      public boolean needsTaskCommit(TaskAttemptContext taskContext) {
-        return false;
-      }
-    }
-  }
-
-  public static class DummyLoader extends Loader {
-    private int index = START_PARTITION*NUMBER_OF_ROWS_PER_PARTITION;
-    private Data expected = new Data();
-    private Data actual = new Data();
-
-    @Override
-    public void load(LoaderContext context, Object oc, Object oj) throws Exception{
-      Object[] array;
-      while ((array = context.getDataReader().readArrayRecord()) != null) {
-        actual.setContent(array, Data.ARRAY_RECORD);
-
-        expected.setContent(new Object[] {
-          index,
-          (double) index,
-          String.valueOf(index)},
-          Data.ARRAY_RECORD);
-        index++;
-
-        assertEquals(expected.toString(), actual.toString());
-      }
-    }
-  }
+//  private static final int START_PARTITION = 1;
+//  private static final int NUMBER_OF_PARTITIONS = 9;
+//  private static final int NUMBER_OF_ROWS_PER_PARTITION = 10;
+//
+//  public void testInputFormat() throws Exception {
+//    Configuration conf = new Configuration();
+//    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
+//    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
+//    Job job = new Job(conf);
+//
+//    SqoopInputFormat inputformat = new SqoopInputFormat();
+//    List<InputSplit> splits = inputformat.getSplits(job);
+//    assertEquals(9, splits.size());
+//
+//    for (int id = START_PARTITION; id <= NUMBER_OF_PARTITIONS; id++) {
+//      SqoopSplit split = (SqoopSplit)splits.get(id-1);
+//      DummyPartition partition = (DummyPartition)split.getPartition();
+//      assertEquals(id, partition.getId());
+//    }
+//  }
+//
+//  public void testMapper() throws Exception {
+//    Configuration conf = new Configuration();
+//    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
+//    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
+//    conf.set(JobConstants.JOB_ETL_EXTRACTOR, DummyExtractor.class.getName());
+//
+//    JobUtils.runJob(conf, SqoopInputFormat.class, SqoopMapper.class,
+//        DummyOutputFormat.class);
+//  }
+//
+//  public void testOutputFormat() throws Exception {
+//    Configuration conf = new Configuration();
+//    ConfigurationUtils.setJobType(conf, MJob.Type.IMPORT);
+//    conf.set(JobConstants.JOB_ETL_PARTITIONER, DummyPartitioner.class.getName());
+//    conf.set(JobConstants.JOB_ETL_EXTRACTOR, DummyExtractor.class.getName());
+//    conf.set(JobConstants.JOB_ETL_LOADER, DummyLoader.class.getName());
+//
+//    JobUtils.runJob(conf, SqoopInputFormat.class, SqoopMapper.class,
+//        SqoopNullOutputFormat.class);
+//  }
+//
+//  public static class DummyPartition extends Partition {
+//    private int id;
+//
+//    public void setId(int id) {
+//      this.id = id;
+//    }
+//
+//    public int getId() {
+//      return id;
+//    }
+//
+//    @Override
+//    public void readFields(DataInput in) throws IOException {
+//      id = in.readInt();
+//    }
+//
+//    @Override
+//    public void write(DataOutput out) throws IOException {
+//      out.writeInt(id);
+//    }
+//
+//    @Override
+//    public String toString() {
+//      return Integer.toString(id);
+//    }
+//  }
+//
+//  public static class DummyPartitioner extends Partitioner {
+//    @Override
+//    public List<Partition> getPartitions(PartitionerContext context, Object oc, Object oj) {
+//      List<Partition> partitions = new LinkedList<Partition>();
+//      for (int id = START_PARTITION; id <= NUMBER_OF_PARTITIONS; id++) {
+//        DummyPartition partition = new DummyPartition();
+//        partition.setId(id);
+//        partitions.add(partition);
+//      }
+//      return partitions;
+//    }
+//  }
+//
+//  public static class DummyExtractor extends Extractor {
+//    @Override
+//    public void extract(ExtractorContext context, Object oc, Object oj, Object partition) {
+//      int id = ((DummyPartition)partition).getId();
+//      for (int row = 0; row < NUMBER_OF_ROWS_PER_PARTITION; row++) {
+//        context.getDataWriter().writeArrayRecord(new Object[] {
+//            id * NUMBER_OF_ROWS_PER_PARTITION + row,
+//            (double) (id * NUMBER_OF_ROWS_PER_PARTITION + row),
+//            String.valueOf(id*NUMBER_OF_ROWS_PER_PARTITION+row)});
+//      }
+//    }
+//
+//    @Override
+//    public long getRowsRead() {
+//      return NUMBER_OF_ROWS_PER_PARTITION;
+//    }
+//  }
+//
+//  public static class DummyOutputFormat
+//      extends OutputFormat<Data, NullWritable> {
+//    @Override
+//    public void checkOutputSpecs(JobContext context) {
+//      // do nothing
+//    }
+//
+//    @Override
+//    public RecordWriter<Data, NullWritable> getRecordWriter(
+//        TaskAttemptContext context) {
+//      return new DummyRecordWriter();
+//    }
+//
+//    @Override
+//    public OutputCommitter getOutputCommitter(TaskAttemptContext context) {
+//      return new DummyOutputCommitter();
+//    }
+//
+//    public static class DummyRecordWriter
+//        extends RecordWriter<Data, NullWritable> {
+//      private int index = START_PARTITION*NUMBER_OF_ROWS_PER_PARTITION;
+//      private Data data = new Data();
+//
+//      @Override
+//      public void write(Data key, NullWritable value) {
+//        data.setContent(new Object[] {
+//          index,
+//          (double) index,
+//          String.valueOf(index)},
+//          Data.ARRAY_RECORD);
+//        index++;
+//
+//        assertEquals(data.toString(), key.toString());
+//      }
+//
+//      @Override
+//      public void close(TaskAttemptContext context) {
+//        // do nothing
+//      }
+//    }
+//
+//    public static class DummyOutputCommitter extends OutputCommitter {
+//      @Override
+//      public void setupJob(JobContext jobContext) { }
+//
+//      @Override
+//      public void setupTask(TaskAttemptContext taskContext) { }
+//
+//      @Override
+//      public void commitTask(TaskAttemptContext taskContext) { }
+//
+//      @Override
+//      public void abortTask(TaskAttemptContext taskContext) { }
+//
+//      @Override
+//      public boolean needsTaskCommit(TaskAttemptContext taskContext) {
+//        return false;
+//      }
+//    }
+//  }
+//
+//  public static class DummyLoader extends Loader {
+//    private int index = START_PARTITION*NUMBER_OF_ROWS_PER_PARTITION;
+//    private Data expected = new Data();
+//    private Data actual = new Data();
+//
+//    @Override
+//    public void load(LoaderContext context, Object oc, Object oj) throws Exception{
+//      Object[] array;
+//      while ((array = context.getDataReader().readArrayRecord()) != null) {
+//        actual.setContent(array, Data.ARRAY_RECORD);
+//
+//        expected.setContent(new Object[] {
+//          index,
+//          (double) index,
+//          String.valueOf(index)},
+//          Data.ARRAY_RECORD);
+//        index++;
+//
+//        assertEquals(expected.toString(), actual.toString());
+//      }
+//    }
+//  }
 }

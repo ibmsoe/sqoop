@@ -164,10 +164,10 @@ under the License.
     <dependency org="commons-collections" name="commons-collections"
       rev="${commons-collections.version}" conf="releaseaudit->default"/>
 
-    <dependency org="org.apache.hbase" name="hbase"
-      rev="${hbase.version}" conf="hbase->default">
-      <artifact name="hbase" type="jar"/>
-      <artifact name="hbase" type="test-jar" ext="jar" m:classifier="tests"/>
+    <dependency org="org.apache.hbase" name="hbase-common"
+      rev="${hbase.version}" conf="hbase->default" >
+      <artifact name="hbase-common" type="jar"/>
+      <artifact name="hbase-common" type="test-jar" ext="jar" m:classifier="tests"/>
       <exclude org="com.sun.jersey" module="jersey-core"/>
       <exclude org="com.sun.jersey" module="jersey-json"/>
       <exclude org="com.sun.jersey" module="jersey-server"/>
@@ -177,9 +177,24 @@ under the License.
       <exclude org="com.cloudera.cdh" module="zookeeper-ant" />
     </dependency>
 
-    <dependency org="org.apache.hcatalog" name="hcatalog-core"
-      rev="${hcatalog.version}" conf="hcatalog->default">
-      <artifact name="hcatalog-core" type="jar"/>
+    <dependency org="org.apache.hbase" name="hbase-client"
+      rev="${hbase.version}" conf="hbase->default" >
+      <artifact name="hbase-client" type="jar"/>
+     </dependency>
+
+    <dependency org="org.apache.hbase" name="hbase-server"
+      rev="${hbase.version}" conf="hbase->default" >
+      <artifact name="hbase-server" type="jar"/>
+     </dependency>
+
+    <dependency org="org.apache.hbase" name="hbase-testing-util"
+      rev="${hbase.version}" conf="hbase->default" >
+      <artifact name="hbase-testing-util" type="jar"/>
+     </dependency>
+
+    <dependency org="org.apache.hive.hcatalog" name="hive-hcatalog-core"
+      rev="${hive-hcatalog.version}" conf="hcatalog->default">
+      <artifact name="hive-hcatalog-core" type="jar"/>
     </dependency>
 
     <dependency org="org.postgresql" name="postgresql"

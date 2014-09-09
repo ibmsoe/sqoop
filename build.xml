@@ -80,7 +80,7 @@
       <equals arg1="${hadoopversion}" arg2="200" />
       <then>
         <property name="hadoop.version" value="2.4.1" />
-        <property name="hbase.version" value="0.98.5-hadoop2-SNAPSHOT" />
+        <property name="hbase.version" value="0.98.0-hadoop2" />
         <property name="zookeeper.version" value="3.4.5" />
         <property name="hadoop.version.full" value="2.4.1" />
         <property name="hive-hcatalog.version" value="0.13.0" />

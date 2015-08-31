@@ -176,11 +176,11 @@
     <elseif>
       <equals arg1="${hadoopversion}" arg2="210" />
       <then>
-        <property name="hadoop.version" value="2.1.0-beta" />
-        <property name="hbase94.version" value="0.94.2" />
-        <property name="zookeeper.version" value="3.4.2" />
-        <property name="hadoop.version.full" value="2.1.0-beta" />
-        <property name="hcatalog.version" value="0.13.0" />
+        <property name="hadoop.version" value="2.7.1" />
+        <property name="hbase95.version" value="1.1.1" />
+        <property name="zookeeper.version" value="3.4.6" />
+        <property name="hadoop.version.full" value="2.7.1" />
+        <property name="hcatalog.version" value="1.2.1" />
         <property name="hbasecompatprofile" value="2" />
         <property name="avrohadoopprofile" value="2" />
       </then>
